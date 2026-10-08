@@ -816,12 +816,19 @@
         let isAuthenticated = false;
 
         async function checkAuthStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const authError = urlParams.get('auth_error');
+            if (authError) {
+                showNotification(`⚠️ Gagal login Google: ${authError}`, 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             try {
                 const response = await fetch('/api/auth/status');
                 const data = await response.json();
                 isAuthenticated = data.authenticated;
                 accessToken = isAuthenticated ? 'backend' : null;
-                updateAuthUI(isAuthenticated);
+                updateAuthUI(isAuthenticated, data.email);
             } catch (error) {
                 console.error('Error checking auth status:', error);
             }
@@ -843,7 +850,7 @@
             }
         }
 
-        function updateAuthUI(isSignedIn) {
+        function updateAuthUI(isSignedIn, email) {
             document.getElementById('statusIndicator').classList.toggle('connected', isSignedIn);
             document.getElementById('authStatusText').textContent = isSignedIn 
                 ? 'Terhubung ke Google Drive' 
@@ -853,7 +860,7 @@
             document.getElementById('mainContent').style.display = isSignedIn ? 'block' : 'none';
             
             if (isSignedIn) {
-                document.getElementById('userEmail').textContent = 'oranghilang377@gmail.com';
+                document.getElementById('userEmail').textContent = email || 'oranghilang377@gmail.com';
             }
         }
 

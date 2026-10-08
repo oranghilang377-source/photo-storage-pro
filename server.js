@@ -29,18 +29,36 @@ app.use(session({
 // Setup Multer for file upload in memory
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Setup Google OAuth2 Client
-const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI || `http://localhost:${PORT}/auth/google/callback`
-);
+const SCOPES = [
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+];
 
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+// Helper to get OAuth2 client configured for current host / environment
+function getOAuthClient(req) {
+    let redirectUri;
+    if (process.env.REDIRECT_URI) {
+        redirectUri = process.env.REDIRECT_URI;
+    } else if (process.env.RENDER_EXTERNAL_URL) {
+        redirectUri = `${process.env.RENDER_EXTERNAL_URL}/auth/google/callback`;
+    } else {
+        const protocol = (req && (req.headers['x-forwarded-proto'] || req.protocol)) || 'http';
+        const host = (req && req.get('host')) || `localhost:${PORT}`;
+        redirectUri = `${protocol}://${host}/auth/google/callback`;
+    }
+    
+    return new google.auth.OAuth2(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        redirectUri
+    );
+}
 
 // Authentication Routes
 app.get('/auth/google', (req, res) => {
-    const url = oauth2Client.generateAuthUrl({
+    const client = getOAuthClient(req);
+    const url = client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
         prompt: 'consent'
@@ -49,21 +67,41 @@ app.get('/auth/google', (req, res) => {
 });
 
 app.get('/auth/google/callback', async (req, res) => {
-    const { code } = req.query;
+    const { code, error } = req.query;
+    if (error) {
+        console.error('Google OAuth error:', error);
+        return res.redirect(`/?auth_error=${encodeURIComponent(error)}`);
+    }
     try {
-        const { tokens } = await oauth2Client.getToken(code);
+        const client = getOAuthClient(req);
+        const { tokens } = await client.getToken(code);
         req.session.tokens = tokens;
+        
+        try {
+            client.setCredentials(tokens);
+            const oauth2 = google.oauth2({ version: 'v2', auth: client });
+            const userInfo = await oauth2.userinfo.get();
+            if (userInfo.data && userInfo.data.email) {
+                req.session.userEmail = userInfo.data.email;
+            }
+        } catch (e) {
+            console.log('User info retrieval skipped:', e.message);
+        }
+        
         res.redirect('/');
-    } catch (error) {
-        console.error('Error fetching tokens:', error);
-        res.status(500).send('Authentication failed');
+    } catch (err) {
+        console.error('Error fetching tokens:', err);
+        res.redirect(`/?auth_error=${encodeURIComponent(err.message || 'auth_failed')}`);
     }
 });
 
 // API Routes for Frontend
 app.get('/api/auth/status', (req, res) => {
     if (req.session.tokens) {
-        res.json({ authenticated: true });
+        res.json({ 
+            authenticated: true,
+            email: req.session.userEmail || 'oranghilang377@gmail.com'
+        });
     } else {
         res.json({ authenticated: false });
     }
@@ -109,8 +147,9 @@ app.post('/api/drive/upload', upload.single('file'), async (req, res) => {
     }
 
     try {
-        oauth2Client.setCredentials(req.session.tokens);
-        const drive = google.drive({ version: 'v3', auth: oauth2Client });
+        const client = getOAuthClient(req);
+        client.setCredentials(req.session.tokens);
+        const drive = google.drive({ version: 'v3', auth: client });
         
         const folderId = await getOrCreateFolder(drive);
         
