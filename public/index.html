@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Storage - Google Drive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Raleway:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4285F4;
+            --secondary: #34A853;
+            --accent: #FBBC04;
+            --danger: #EA4335;
+            --dark: #202124;
+            --light: #F8F9FA;
+            --card: #FFFFFF;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --gradient: linear-gradient(135deg, #4285F4 0%, #34A853 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .auth-section {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            text-align: center;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #EA4335;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-indicator.connected {
+            background: #34A853;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Raleway', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-google {
+            background: white;
+            color: #5f6368;
+            border: 2px solid #dadce0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-google:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(66, 133, 244, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EA4335 0%, #c5221f 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+            animation: fadeIn 1s ease both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stat-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #5f6368;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease 0.5s both;
+        }
+
+        .upload-area {
+            border: 4px dashed #4285F4;
+            border-radius: 20px;
+            padding: 80px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.05) 0%, rgba(52, 168, 83, 0.05) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+
+        .upload-area:hover::after {
+            left: 100%;
+        }
+
+        .upload-area:hover {
+            border-color: var(--secondary);
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(66, 133, 244, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .upload-text {
+            font-size: 1.5rem;
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #5f6368;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            animation: fadeIn 1s ease 0.8s both;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            animation: scaleIn 0.6s ease both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.7) rotate(5deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .checkbox-item {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .selected-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(66, 133, 244, 0.4);
+            display: none;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .gallery-item.selected .selected-overlay {
+            display: block;
+        }
+
+        .media-container {
+            width: 100%;
+            height: 280px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        .media-container img,
+        .media-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover .media-container img,
+        .gallery-item:hover .media-container video {
+            transform: scale(1.15) rotate(2deg);
+        }
+
+        .video-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            pointer-events: none;
+        }
+
+        .item-actions {
+            padding: 20px;
+        }
+
+        .item-info {
+            font-size: 0.9rem;
+            color: #5f6368;
+            margin-bottom: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .icon-btn {
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #34A853 0%, #0f9d58 100%);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #EA4335 0%, #c5221f 100%);
+            color: white;
+        }
+
+        .batch-section {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            margin: 30px 0;
+            animation: fadeIn 1s ease 0.6s both;
+        }
+
+        .batch-section h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .selected-info {
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1) 0%, rgba(52, 168, 83, 0.1) 100%);
+            padding: 20px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+            border: 2px solid var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+        }
+
+        .empty-icon {
+            font-size: 6rem;
+            margin-bottom: 20px;
+            opacity: 0.6;
+            animation: swing 3s ease-in-out infinite;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+
+        .empty-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 25px 35px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 20px;
+            animation: slideIn 0.5s ease;
+            max-width: 450px;
+            border-left: 6px solid var(--primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(500px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.show {
+            display: flex;
+        }
+
+        .notification.success { border-left-color: #34A853; }
+        .notification.error { border-left-color: #EA4335; }
+        .notification.warning { border-left-color: #FBBC04; }
+
+        .notification-icon {
+            font-size: 2rem;
+        }
+
+        .notification-text {
+            flex: 1;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .google-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .upload-section {
+                padding: 30px 20px;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .controls, .batch-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .drive-info {
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1) 0%, rgba(52, 168, 83, 0.1) 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .drive-info h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .drive-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .drive-info li {
+            padding: 8px 0;
+            color: #5f6368;
+            font-weight: 500;
+        }
+
+        .drive-info li::before {
+            content: '✓ ';
+            color: var(--secondary);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <div class="logo">📸</div>
+            </div>
+            <h1>Photo Storage Pro</h1>
+            <p class="subtitle">Simpan & Kelola Foto Anda dengan Google Drive</p>
+        </header>
+
+        <div class="auth-section">
+            <div class="auth-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="authStatusText">Belum terhubung ke Google Drive</span>
+            </div>
+            <div id="signInSection">
+                <button class="btn btn-google" onclick="handleAuthClick()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Masuk dengan Google
+                </button>
+                <div class="drive-info">
+                    <h4>📌 Informasi Penting:</h4>
+                    <ul>
+                        <li>Klik tombol di atas untuk menghubungkan ke Google Drive</li>
+                        <li>Anda perlu memberikan izin akses ke Google Drive</li>
+                        <li>Foto akan disimpan di folder "Photo Storage Pro" di Drive Anda</li>
+                        <li>Email yang akan digunakan: oranghilang377@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="signOutSection" style="display: none;">
+                <p style="margin-bottom: 20px; color: #5f6368; font-weight: 600;">
+                    Terhubung sebagai: <strong id="userEmail"></strong>
+                </p>
+                <button class="btn btn-danger" onclick="handleSignoutClick()">
+                    🚪 Keluar
+                </button>
+            </div>
+        </div>
+
+        <div id="mainContent" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">📁</span>
+                    <span class="stat-number" id="totalFiles">0</span>
+                    <span class="stat-label">Total File</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🖼️</span>
+                    <span class="stat-number" id="photoCount">0</span>
+                    <span class="stat-label">Foto</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🎬</span>
+                    <span class="stat-number" id="videoCount">0</span>
+                    <span class="stat-label">Video</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">💾</span>
+                    <span class="stat-number" id="remainingSlots">500</span>
+                    <span class="stat-label">Sisa Slot</span>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <span class="upload-icon">☁️</span>
+                    <div class="upload-text">Drag & Drop atau Klik untuk Upload</div>
+                    <div class="upload-hint">Mendukung: JPG, PNG, GIF, WebP, MP4, MOV, AVI, WebM</div>
+                    <input type="file" id="fileInput" multiple accept="image/*,video/*">
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        📤 Upload File
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadAllToDrive()" id="saveAllBtn">
+                        💾 Simpan Semua ke Drive
+                    </button>
+                </div>
+            </div>
+
+            <div class="batch-section">
+                <h3>📨 Kirim Foto (Batch Mode)</h3>
+                <div class="batch-controls">
+                    <div class="selected-info">
+                        <span id="selectedCount">0</span> foto dipilih
+                    </div>
+                    <button class="btn btn-primary" onclick="sendBatch()" id="sendBatchBtn" disabled>
+                        🚀 Kirim 10 Foto per Fase
+                    </button>
+                    <button class="btn btn-primary" onclick="saveBatchToDrive()" id="saveBatchBtn" disabled>
+                        💾 Simpan Pilihan ke Drive
+                    </button>
+                    <button class="btn" style="background: #5f6368; color: white;" onclick="selectAll()">
+                        ✅ Pilih Semua Foto
+                    </button>
+                    <button class="btn" style="background: #5f6368; color: white;" onclick="deselectAll()">
+                        ❌ Batalkan Pilihan
+                    </button>
+                </div>
+            </div>
+
+            <div id="gallery" class="gallery"></div>
+
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">📷</div>
+                <div class="empty-text">Belum ada file. Upload sekarang!</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <span class="notification-icon" id="notificationIcon"></span>
+        <span class="notification-text" id="notificationText"></span>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        const MAX_FILES = 500;
+        let mediaFiles = [];
+        let tokenClient;
+        let accessToken = null;
+        let gapiInited = false;
+        let gisInited = false;
+
+        let isAuthenticated = false;
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+                isAuthenticated = data.authenticated;
+                accessToken = isAuthenticated ? 'backend' : null;
+                updateAuthUI(isAuthenticated);
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+            }
+        }
+
+        function handleAuthClick() {
+            window.location.href = '/auth/google';
+        }
+
+        async function handleSignoutClick() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                accessToken = null;
+                isAuthenticated = false;
+                updateAuthUI(false);
+                showNotification('👋 Berhasil keluar dari Google Drive', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function updateAuthUI(isSignedIn) {
+            document.getElementById('statusIndicator').classList.toggle('connected', isSignedIn);
+            document.getElementById('authStatusText').textContent = isSignedIn 
+                ? 'Terhubung ke Google Drive' 
+                : 'Belum terhubung ke Google Drive';
+            document.getElementById('signInSection').style.display = isSignedIn ? 'none' : 'block';
+            document.getElementById('signOutSection').style.display = isSignedIn ? 'block' : 'none';
+            document.getElementById('mainContent').style.display = isSignedIn ? 'block' : 'none';
+            
+            if (isSignedIn) {
+                document.getElementById('userEmail').textContent = 'oranghilang377@gmail.com';
+            }
+        }
+
+        // Folder creation handled on backend
+
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
+
+        async function uploadToGoogleDrive(file, fileName) {
+            if (!isAuthenticated) {
+                showNotification('⚠️ Silakan login ke Google Drive terlebih dahulu', 'warning');
+                return false;
+            }
+
+            try {
+                const formData = new FormData();
+                const blob = dataURItoBlob(file.data);
+                formData.append('file', blob, fileName);
+
+                const response = await fetch('/api/drive/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    return true;
+                } else {
+                    console.error('Upload failed');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error uploading to Drive:', error);
+                return false;
+            }
+        }
+
+        // Load saved files
+        function loadSavedFiles() {
+            const saved = localStorage.getItem('photoStoragePro');
+            if (saved) {
+                mediaFiles = JSON.parse(saved);
+                renderGallery();
+                updateStats();
+            }
+        }
+
+        function saveFiles() {
+            localStorage.setItem('photoStoragePro', JSON.stringify(mediaFiles));
+        }
+
+        // File handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--secondary)';
+            uploadArea.style.transform = 'scale(1.02)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#4285F4';
+            uploadArea.style.transform = 'scale(1)';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4285F4';
+            uploadArea.style.transform = 'scale(1)';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            const remainingSlots = MAX_FILES - mediaFiles.length;
+            
+            if (files.length > remainingSlots) {
+                showNotification(`❌ Hanya bisa upload ${remainingSlots} file lagi. Batas maksimal 500 file!`, 'error');
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                if (mediaFiles.length >= MAX_FILES) {
+                    showNotification('⚠️ Batas maksimal 500 file tercapai!', 'warning');
+                    return;
+                }
+
+                const isImage = file.type.startsWith('image/');
+                const isVideo = file.type.startsWith('video/');
+
+                if (!isImage && !isVideo) {
+                    showNotification(`❌ ${file.name} bukan foto atau video!`, 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const mediaItem = {
+                        id: Date.now() + Math.random(),
+                        type: isImage ? 'image' : 'video',
+                        data: e.target.result,
+                        name: file.name,
+                        size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+                        date: new Date().toLocaleDateString('id-ID'),
+                        selected: false
+                    };
+
+                    mediaFiles.push(mediaItem);
+                    saveFiles();
+                    renderGallery();
+                    updateStats();
+                    showNotification(`✅ ${file.name} berhasil diupload!`, 'success');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const emptyState = document.getElementById('emptyState');
+
+            if (mediaFiles.length === 0) {
+                gallery.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            gallery.style.display = 'grid';
+            emptyState.style.display = 'none';
+            gallery.innerHTML = '';
+
+            mediaFiles.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item' + (item.selected ? ' selected' : '');
+                div.style.animationDelay = `${index * 0.05}s`;
+
+                if (item.type === 'image') {
+                    div.innerHTML = `
+                        <div class="checkbox-item">
+                            <input type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleSelect(${item.id})">
+                        </div>
+                        <div class="selected-overlay"></div>
+                        <div class="media-container">
+                            <img src="${item.data}" alt="${item.name}">
+                        </div>
+                        <div class="item-actions">
+                            <div class="item-info">
+                                📸 ${item.size} • ${item.date}
+                            </div>
+                            <div class="action-buttons">
+                                <button class="icon-btn btn-download" onclick="downloadFile(${item.id})" title="Download">
+                                    💾
+                                </button>
+                                <button class="icon-btn btn-delete" onclick="deleteFile(${item.id})" title="Hapus">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="media-container">
+                            <video src="${item.data}"></video>
+                            <div class="video-badge">▶️</div>
+                        </div>
+                        <div class="item-actions">
+                            <div class="item-info">
+                                🎬 ${item.size} • ${item.date}
+                            </div>
+                            <div class="action-buttons">
+                                <button class="icon-btn btn-download" onclick="downloadFile(${item.id})" title="Download">
+                                    💾
+                                </button>
+                                <button class="icon-btn btn-delete" onclick="deleteFile(${item.id})" title="Hapus">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                gallery.appendChild(div);
+            });
+
+            updateSelectedCount();
+        }
+
+        function toggleSelect(id) {
+            const item = mediaFiles.find(f => f.id === id);
+            if (item && item.type === 'image') {
+                item.selected = !item.selected;
+                saveFiles();
+                renderGallery();
+            }
+        }
+
+        function selectAll() {
+            mediaFiles.forEach(item => {
+                if (item.type === 'image') item.selected = true;
+            });
+            saveFiles();
+            renderGallery();
+            showNotification('✅ Semua foto dipilih!', 'success');
+        }
+
+        function deselectAll() {
+            mediaFiles.forEach(item => item.selected = false);
+            saveFiles();
+            renderGallery();
+            showNotification('ℹ️ Pilihan dibatalkan', 'success');
+        }
+
+        function updateSelectedCount() {
+            const selectedPhotos = mediaFiles.filter(f => f.type === 'image' && f.selected);
+            document.getElementById('selectedCount').textContent = selectedPhotos.length;
+            document.getElementById('sendBatchBtn').disabled = selectedPhotos.length === 0;
+            document.getElementById('saveBatchBtn').disabled = selectedPhotos.length === 0;
+        }
+
+        function sendBatch() {
+            const selectedPhotos = mediaFiles.filter(f => f.type === 'image' && f.selected);
+            
+            if (selectedPhotos.length === 0) {
+                showNotification('⚠️ Pilih minimal 1 foto untuk dikirim!', 'warning');
+                return;
+            }
+
+            const batchSize = 10;
+            const totalPhases = Math.ceil(selectedPhotos.length / batchSize);
+            let currentBatch = 0;
+
+            const sendNextBatch = () => {
+                if (currentBatch >= totalPhases) {
+                    showNotification(`✅ Pengiriman selesai! ${selectedPhotos.length} foto terkirim dalam ${totalPhases} fase.`, 'success');
+                    return;
+                }
+
+                const start = currentBatch * batchSize;
+                const end = Math.min(start + batchSize, selectedPhotos.length);
+                const batch = selectedPhotos.slice(start, end);
+
+                showNotification(`📤 Mengirim fase ${currentBatch + 1}/${totalPhases} (${batch.length} foto)...`, 'success');
+                
+                currentBatch++;
+                
+                if (currentBatch < totalPhases) {
+                    setTimeout(sendNextBatch, 2000);
+                } else {
+                    setTimeout(() => {
+                        showNotification(`✅ Selesai! Total ${selectedPhotos.length} foto terkirim.`, 'success');
+                    }, 2000);
+                }
+            };
+
+            sendNextBatch();
+        }
+
+        async function saveBatchToDrive() {
+            const selectedPhotos = mediaFiles.filter(f => f.type === 'image' && f.selected);
+            
+            if (selectedPhotos.length === 0) {
+                showNotification('⚠️ Pilih minimal 1 foto untuk disimpan!', 'warning');
+                return;
+            }
+
+            if (!accessToken) {
+                showNotification('⚠️ Silakan login ke Google Drive terlebih dahulu', 'warning');
+                return;
+            }
+
+            showNotification(`💾 Menyimpan ${selectedPhotos.length} foto ke Google Drive...`, 'success');
+
+            let saved = 0;
+            for (const photo of selectedPhotos) {
+                const success = await uploadToGoogleDrive(photo, photo.name);
+                if (success) saved++;
+            }
+
+            if (saved === selectedPhotos.length) {
+                showNotification(`✅ Berhasil menyimpan ${saved} foto ke Google Drive!`, 'success');
+            } else {
+                showNotification(`⚠️ ${saved} dari ${selectedPhotos.length} foto tersimpan ke Drive`, 'warning');
+            }
+        }
+
+        async function downloadAllToDrive() {
+            const photos = mediaFiles.filter(f => f.type === 'image');
+            
+            if (photos.length === 0) {
+                showNotification('⚠️ Tidak ada foto untuk disimpan!', 'warning');
+                return;
+            }
+
+            if (!accessToken) {
+                showNotification('⚠️ Silakan login ke Google Drive terlebih dahulu', 'warning');
+                return;
+            }
+
+            showNotification(`💾 Menyimpan ${photos.length} foto ke Google Drive...`, 'success');
+
+            let saved = 0;
+            for (const photo of photos) {
+                const success = await uploadToGoogleDrive(photo, photo.name);
+                if (success) saved++;
+            }
+
+            if (saved === photos.length) {
+                showNotification(`✅ Berhasil menyimpan ${saved} foto ke Google Drive!`, 'success');
+            } else {
+                showNotification(`⚠️ ${saved} dari ${photos.length} foto tersimpan ke Drive`, 'warning');
+            }
+        }
+
+        function updateStats() {
+            const photos = mediaFiles.filter(f => f.type === 'image').length;
+            const videos = mediaFiles.filter(f => f.type === 'video').length;
+
+            document.getElementById('totalFiles').textContent = mediaFiles.length;
+            document.getElementById('photoCount').textContent = photos;
+            document.getElementById('videoCount').textContent = videos;
+            document.getElementById('remainingSlots').textContent = MAX_FILES - mediaFiles.length;
+
+            document.getElementById('saveAllBtn').disabled = photos === 0;
+        }
+
+        function deleteFile(id) {
+            if (confirm('Yakin ingin menghapus file ini?')) {
+                mediaFiles = mediaFiles.filter(f => f.id !== id);
+                saveFiles();
+                renderGallery();
+                updateStats();
+                showNotification('🗑️ File berhasil dihapus!', 'success');
+            }
+        }
+
+        function downloadFile(id) {
+            const file = mediaFiles.find(f => f.id === id);
+            if (file) {
+                const link = document.createElement('a');
+                link.href = file.data;
+                link.download = file.name;
+                link.click();
+                showNotification(`💾 ${file.name} sedang didownload...`, 'success');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const text = document.getElementById('notificationText');
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️'
+            };
+
+            icon.textContent = icons[type] || '✅';
+            text.textContent = message;
+            notification.className = `notification ${type} show`;
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Initialize
+        window.onload = () => {
+            loadSavedFiles();
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html>
