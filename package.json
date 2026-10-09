@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
+    "build": "node -e \"require('node:fs').accessSync('public/index.html'); console.log('Static assets in public are ready to deploy');\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,10 +17,5 @@
     "express-session": "^1.19.0",
     "googleapis": "^183.0.0",
     "multer": "^2.4.0"
-  }
-}
-{
-  "scripts": {
-    "build": "npm run build"
   }
 }
